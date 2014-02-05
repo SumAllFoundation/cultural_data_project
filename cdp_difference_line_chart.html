@@ -29,7 +29,7 @@ body {
 .line {
   fill: none;
   stroke: #100;
-  stroke-width: 2px;
+  stroke-width: 3px;
 }
 
 </style>
@@ -62,6 +62,8 @@ body {
 
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
+
+var sumall_color_schema = ["#114370", "#178BE2", "#5FBEF2", "#9FD8F7", "#D7DCDD"]
 
 var margin = {top: 20, right: 30, bottom: 30, left: 60},
     width = 960 - margin.left - margin.right,
@@ -99,7 +101,18 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.tsv("/data/cdp/tweets.csv", function(error, data) {
+//Labels
+var ylabel = svg.append("text")
+              .attr("class","y label")
+              .attr("transform", "rotate(-90)")
+              .attr("y", 6)
+              .attr("font-size", "12px")
+              .attr("font-family",'nunito')
+              .attr("dy", ".81em")
+              .style("text-anchor", "end")
+              .text("Number of Twitter Followers");
+
+d3.tsv("data/cdp_d3.csv", function(error, data) {
   data.forEach(function(d) {
     d.date = parseDate(d.date);
     d["user_followers"]= +d["user_followers"];
@@ -128,12 +141,14 @@ d3.tsv("/data/cdp/tweets.csv", function(error, data) {
   svg.append("path")
       .attr("class", "area above")
       .attr("clip-path", "url(#clip-above)")
-      .attr("d", area.y0(function(d) { return y(d["benchmark_followers"]); }));
+      .attr("d", area.y0(function(d) { return y(d["benchmark_followers"]); }))
+      .style("fill", sumall_color_schema[3]);
 
   svg.append("path")
       .attr("class", "area below")
       .attr("clip-path", "url(#clip-below)")
-      .attr("d", area);
+      .attr("d", area)
+      .style("fill", sumall_color_schema[0]);
 
   svg.append("path")
       .attr("class", "line")
@@ -147,12 +162,8 @@ d3.tsv("/data/cdp/tweets.csv", function(error, data) {
   svg.append("g")
       .attr("class", "y axis")
       .call(yAxis)
-    // .append("text")
-    //   .attr("transform", "rotate(-90)")
-    //   .attr("y", 1)
-    //   .attr("dy", ".81em")
-    //   .style("text-anchor", "end")
-    //   .text('Followers');
+
+
 });
 
 
@@ -167,7 +178,7 @@ d3.selectAll("button").
         if (paragraphID == "t"){
           
 
-          d3.tsv("/data/cdp/tweets.csv", function(error, data) {
+          d3.tsv("/data/cdp_d3.csv", function(error, data) {
             data.forEach(function(d) {
               d.date = parseDate(d.date);
               d["user_tweets"]= +d["user_tweets"];
@@ -262,11 +273,18 @@ d3.selectAll("button").
                 .transition()
                 .duration(100)
                 .call(yAxis)
-          });
+
+
+          //Y-Label
+          ylabel
+            .transition()
+            .duration(300)
+            .text('Number of Tweets');
+                  });
 
         }
          else if (paragraphID == "f"){
-                d3.tsv("/data/cdp/tweets.csv", function(error, data) {
+                d3.tsv("/data/cdp_d3.csv", function(error, data) {
                   data.forEach(function(d) {
                     d.date = parseDate(d.date);
                     d["user_followers"]= +d["user_followers"];
@@ -356,10 +374,16 @@ d3.selectAll("button").
                     .transition()
                     .duration(100)
                     .call(yAxis)
+
+                //Y-Label
+                ylabel
+                  .transition()
+                  .duration(300)
+                  .text('Number of Followers');
             });
         }
          else if (paragraphID == "m") {
-                d3.tsv("/data/cdp/tweets.csv", function(error, data) {
+                d3.tsv("/data/cdp_d3.csv", function(error, data) {
                   data.forEach(function(d) {
                     d.date = parseDate(d.date);
                     d["user_mentions"]= +d["user_mentions"];
@@ -446,6 +470,11 @@ d3.selectAll("button").
                     .transition()
                     .duration(100)
                     .call(yAxis)
+              //Y-Label
+              ylabel
+                .transition()
+                .duration(300)
+                .text('Number of Mentions');
             });
         }
 });
